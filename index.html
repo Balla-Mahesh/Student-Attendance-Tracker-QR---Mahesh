@@ -1,204 +1,503 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Student Attendance System - QR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance System | B.Tech Project</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- QR Scanner Library -->
-  <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        /* ------------------------------------------------------------------
+           CSS VARIABLES & RESET
+           expl: define colors once for consistency (Blue/Indigo Palette)
+        ------------------------------------------------------------------ */
+        :root {
+            --primary: #4F46E5;       /* Indigo 600 */
+            --primary-dark: #4338CA;  /* Indigo 700 */
+            --secondary: #64748B;     /* Slate 500 */
+            --bg-body: #F1F5F9;       /* Slate 100 */
+            --bg-card: #FFFFFF;
+            --text-main: #1E293B;     /* Slate 800 */
+            --text-muted: #94A3B8;    /* Slate 400 */
+            --success: #10B981;       /* Emerald 500 */
+            --danger: #EF4444;        /* Red 500 */
+            --border: #E2E8F0;        /* Slate 200 */
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 0;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
 
-    header {
-      background: #2c3e50;
-      color: white;
-      padding: 15px;
-      text-align: center;
-    }
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .container {
-      max-width: 500px;
-      margin: 30px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 6px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
+        /* ------------------------------------------------------------------
+           UTILITY CLASSES
+        ------------------------------------------------------------------ */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+        }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+        .hidden { display: none !important; }
+        
+        .flex-center { display: flex; align-items: center; justify-content: center; }
+        .flex-between { display: flex; align-items: center; justify-content: space-between; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      font-size: 16px;
-    }
+        /* ------------------------------------------------------------------
+           UI COMPONENTS (Cards, Buttons, Inputs)
+        ------------------------------------------------------------------ */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
 
-    button {
-      background: #3498db;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
 
-    button:hover {
-      background: #2980b9;
-    }
+        h1, h2, h3 { font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem; }
+        p { color: var(--secondary); line-height: 1.6; }
 
-    .hidden {
-      display: none;
-    }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
 
-    #qr-reader {
-      margin-top: 20px;
-    }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-dark); }
+        
+        .btn-outline { background: transparent; border: 1px solid var(--secondary); color: var(--secondary); }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
 
-    .success {
-      color: green;
-      text-align: center;
-      margin-top: 10px;
-    }
+        .form-group { margin-bottom: 1.5rem; text-align: left; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
 
-    .error {
-      color: red;
-      text-align: center;
-      margin-top: 10px;
-    }
-  </style>
+        /* ------------------------------------------------------------------
+           NAVBAR
+        ------------------------------------------------------------------ */
+        .navbar {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-logo { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+        .nav-user { font-size: 0.9rem; color: var(--secondary); }
+
+        /* ------------------------------------------------------------------
+           SPECIFIC PAGE STYLES
+        ------------------------------------------------------------------ */
+        
+        /* Login Page */
+        .login-wrapper {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card { width: 100%; max-width: 400px; text-align: center; }
+        .role-switch {
+            display: flex;
+            background: var(--bg-body);
+            padding: 4px;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .role-btn {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+        .role-btn.active { background: white; color: var(--primary); shadow: var(--shadow); }
+
+        /* Faculty Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card { text-align: center; padding: 1.5rem; }
+        .stat-value { font-size: 2.5rem; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 0.9rem; color: var(--secondary); }
+
+        .qr-section {
+            background: white;
+            padding: 3rem;
+            text-align: center;
+            border-radius: var(--radius);
+            margin-top: 2rem;
+            border: 2px dashed var(--border);
+        }
+        .qr-placeholder {
+            width: 250px;
+            height: 250px;
+            background: #f8fafc;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+        }
+        .qr-placeholder img { max-width: 100%; }
+
+        /* Student Dashboard */
+        .scanner-viewport {
+            width: 100%;
+            height: 300px;
+            background: black;
+            border-radius: var(--radius);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .scan-line {
+            width: 100%;
+            height: 2px;
+            background: var(--success);
+            position: absolute;
+            top: 0;
+            animation: scan 2s infinite linear;
+            box-shadow: 0 0 4px var(--success);
+        }
+        @keyframes scan { 0% {top: 0} 100% {top: 100%} }
+        
+        .status-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .status-success { background: #DCFCE7; color: #166534; }
+        .status-error { background: #FEE2E2; color: #991B1B; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+        }
+    </style>
 </head>
-
 <body>
 
-<header>
-  <h1>Student Attendance Management System</h1>
-  <p>QR Code Based Attendance</p>
-</header>
+    <nav class="navbar flex-between" id="navbar">
+        <div class="nav-logo">
+            <i class="fa-solid fa-graduation-cap"></i> AttendSys
+        </div>
+        <div class="nav-user" id="nav-user-info">
+            </div>
+        <button id="logout-btn" class="hidden btn btn-outline" style="font-size: 0.8rem; padding: 0.5rem 1rem;">
+            Logout
+        </button>
+    </nav>
 
-<!-- LOGIN -->
-<div class="container" id="loginBox">
-  <h2>Login</h2>
-  <input type="text" id="userId" placeholder="User ID">
-  <select id="role">
-    <option value="student">Student</option>
-    <option value="faculty">Faculty</option>
-  </select>
-  <button onclick="login()">Login</button>
-  <p class="error" id="loginError"></p>
-</div>
+    <div class="container">
 
-<!-- FACULTY DASHBOARD -->
-<div class="container hidden" id="facultyBox">
-  <h2>Faculty Dashboard</h2>
-  <button onclick="createSession()">Create Session & Generate QR</button>
-  <br><br>
-  <img id="qrImage" style="width:100%; display:none;">
-  <p class="success" id="facultyMsg"></p>
-</div>
+        <section id="login-section" class="login-wrapper">
+            <div class="card login-card">
+                <div style="margin-bottom: 1.5rem;">
+                    <i class="fa-solid fa-university fa-3x" style="color: var(--primary);"></i>
+                </div>
+                <h2>Welcome Back</h2>
+                <p style="margin-bottom: 1.5rem;">Sign in to the attendance portal</p>
 
-<!-- STUDENT DASHBOARD -->
-<div class="container hidden" id="studentBox">
-  <h2>Student Dashboard</h2>
-  <button onclick="startScanner()">Scan QR Code</button>
-  <div id="qr-reader"></div>
-  <p class="success" id="studentMsg"></p>
-  <p class="error" id="studentError"></p>
-</div>
+                <div class="role-switch">
+                    <div class="role-btn active" onclick="switchRole('faculty')">Faculty</div>
+                    <div class="role-btn" onclick="switchRole('student')">Student</div>
+                </div>
 
-<script>
-  const BASE_URL = "http://localhost:5000"; // Flask backend
-  let currentUser = {};
-  let html5QrCode;
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label">Username / ID</label>
+                        <input type="text" class="form-input" placeholder="Enter your ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        Sign In <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
 
-  function login() {
-    const userId = document.getElementById("userId").value;
-    const role = document.getElementById("role").value;
+        <section id="faculty-section" class="hidden">
+            <div class="flex-between" style="margin-bottom: 2rem;">
+                <div>
+                    <h1>Faculty Dashboard</h1>
+                    <p>Manage today's class: <span style="font-weight: 600; color: var(--primary);">CS-402 (Data Science)</span></p>
+                </div>
+                <div style="text-align: right;">
+                    <p id="current-date"></p>
+                </div>
+            </div>
 
-    if (!userId) {
-      document.getElementById("loginError").innerText = "Enter User ID";
-      return;
-    }
+            <div class="stats-grid">
+                <div class="card stat-card">
+                    <div class="stat-value">64</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-value" id="present-count">0</div>
+                    <div class="stat-label">Present Today</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-value" style="color: var(--danger);">12%</div>
+                    <div class="stat-label">Absence Rate</div>
+                </div>
+            </div>
 
-    currentUser = { userId, role };
-    document.getElementById("loginBox").classList.add("hidden");
+            <div class="grid-2">
+                <div class="card">
+                    <h3><i class="fa-solid fa-qrcode"></i> Generate Attendance QR</h3>
+                    <p>Generate a unique QR code for today's session. This code expires in 10 minutes.</p>
+                    
+                    <div id="qr-display-area" class="hidden qr-section">
+                        <div class="qr-placeholder">
+                            <i class="fa-solid fa-qrcode fa-5x" style="color: var(--text-main);"></i>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--success); font-weight: 600;">
+                            <i class="fa-solid fa-circle-check"></i> Active for receiving attendance
+                        </p>
+                    </div>
 
-    if (role === "faculty") {
-      document.getElementById("facultyBox").classList.remove("hidden");
-    } else {
-      document.getElementById("studentBox").classList.remove("hidden");
-    }
-  }
+                    <button onclick="generateQR()" class="btn btn-primary" style="margin-top: 1.5rem; width: 100%;">
+                        Generate New Code
+                    </button>
+                </div>
 
-  // FACULTY: Create session & QR
-  function createSession() {
-    fetch(`${BASE_URL}/faculty/create-session`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ faculty_id: currentUser.userId })
-    })
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("qrImage").src = data.qr_url;
-      document.getElementById("qrImage").style.display = "block";
-      document.getElementById("facultyMsg").innerText =
-        "QR generated. Valid for 2 minutes.";
-    })
-    .catch(() => {
-      document.getElementById("facultyMsg").innerText =
-        "Error generating QR.";
-    });
-  }
+                <div class="card">
+                    <h3>Recent Check-ins</h3>
+                    <ul id="attendee-list" style="list-style: none; margin-top: 1rem;">
+                        <li style="padding: 0.8rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;">
+                            <span><i class="fa-regular fa-user-circle"></i> Waiting for scans...</span>
+                            <span style="color: var(--secondary);">--:--</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
 
-  // STUDENT: Start QR Scanner
-  function startScanner() {
-    html5QrCode = new Html5Qrcode("qr-reader");
+        <section id="student-section" class="hidden">
+            <div style="margin-bottom: 2rem;">
+                <h1>Student Dashboard</h1>
+                <p>Scan the faculty's QR code to mark your attendance.</p>
+            </div>
 
-    html5QrCode.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: 250 },
-      qrCodeMessage => {
-        html5QrCode.stop();
-        markAttendance(qrCodeMessage);
-      },
-      error => {}
-    );
-  }
+            <div class="grid-2">
+                <div class="card">
+                    <h3><i class="fa-solid fa-camera"></i> QR Scanner</h3>
+                    
+                    <div class="scanner-viewport">
+                        <div class="scan-line"></div>
+                        <div class="flex-center" style="height: 100%; color: white; flex-direction: column;">
+                            <i class="fa-solid fa-camera fa-2x" style="margin-bottom: 10px; opacity: 0.7;"></i>
+                            <span style="opacity: 0.7; font-size: 0.9rem;">Camera Feed Active</span>
+                        </div>
+                    </div>
 
-  // STUDENT: Mark Attendance
-  function markAttendance(sessionToken) {
-    fetch(`${BASE_URL}/student/mark-attendance`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        student_id: currentUser.userId,
-        session_token: sessionToken
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        document.getElementById("studentMsg").innerText =
-          "Attendance marked successfully!";
-      } else {
-        document.getElementById("studentError").innerText =
-          data.message || "Attendance failed.";
-      }
-    })
-    .catch(() => {
-      document.getElementById("studentError").innerText =
-        "Server error.";
-    });
-  }
-</script>
+                    <div id="scan-status" class="hidden"></div>
 
+                    <div class="flex-between">
+                        <button onclick="simulateScan()" class="btn btn-primary" style="width: 100%;">
+                            Simulate Successful Scan
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>My Attendance History</h3>
+                    <div style="margin-top: 1rem;">
+                        <div style="display: flex; justify-content: space-between; padding: 1rem; background: var(--bg-body); border-radius: 8px; margin-bottom: 0.5rem;">
+                            <span><strong>CS-402</strong><br><small>Data Science</small></span>
+                            <span style="color: var(--success); font-weight: 600;">92%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 1rem; background: var(--bg-body); border-radius: 8px;">
+                            <span><strong>CS-405</strong><br><small>Network Security</small></span>
+                            <span style="color: orange; font-weight: 600;">74%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // State Management
+        let currentRole = 'faculty'; // 'faculty' or 'student'
+        let isLoggedIn = false;
+
+        // DOM Elements
+        const sections = {
+            login: document.getElementById('login-section'),
+            faculty: document.getElementById('faculty-section'),
+            student: document.getElementById('student-section')
+        };
+        const navUser = document.getElementById('nav-user-info');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // 1. Role Switcher Logic (Login Page)
+        function switchRole(role) {
+            currentRole = role;
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText.toLowerCase() === role) btn.classList.add('active');
+            });
+        }
+
+        // 2. Login Handling
+        function handleLogin(e) {
+            e.preventDefault();
+            // In a real app, API validation goes here.
+            isLoggedIn = true;
+            
+            // UI Transition
+            sections.login.classList.add('hidden');
+            logoutBtn.classList.remove('hidden');
+
+            const date = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            if (currentRole === 'faculty') {
+                sections.faculty.classList.remove('hidden');
+                navUser.innerHTML = `<span>Prof. Sharma</span> <span style="opacity:0.5;">|</span> Faculty`;
+                document.getElementById('current-date').innerText = date;
+            } else {
+                sections.student.classList.remove('hidden');
+                navUser.innerHTML = `<span>Rahul Verma</span> <span style="opacity:0.5;">|</span> Student (Roll: 104)`;
+            }
+        }
+
+        // 3. Logout Logic
+        logoutBtn.addEventListener('click', () => {
+            isLoggedIn = false;
+            sections.login.classList.remove('hidden');
+            sections.faculty.classList.add('hidden');
+            sections.student.classList.add('hidden');
+            logoutBtn.classList.add('hidden');
+            navUser.innerHTML = '';
+            
+            // Reset Dashboard States
+            document.getElementById('qr-display-area').classList.add('hidden');
+            document.getElementById('scan-status').className = 'hidden';
+        });
+
+        // 4. Faculty: Generate QR Logic
+        function generateQR() {
+            const qrArea = document.getElementById('qr-display-area');
+            // Hide first to restart animation if needed
+            qrArea.classList.add('hidden');
+            
+            // Fake loading delay
+            setTimeout(() => {
+                qrArea.classList.remove('hidden');
+                // Scroll to QR
+                qrArea.scrollIntoView({ behavior: 'smooth' });
+            }, 300);
+        }
+
+        // 5. Student: Simulate Scan Logic
+        function simulateScan() {
+            const statusDiv = document.getElementById('scan-status');
+            statusDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+            statusDiv.className = 'status-message';
+            statusDiv.style.background = '#f1f5f9';
+            statusDiv.style.color = '#64748b';
+            statusDiv.classList.remove('hidden');
+
+            // Simulate API delay
+            setTimeout(() => {
+                statusDiv.innerHTML = '<i class="fa-solid fa-check-circle"></i> Attendance Marked Successfully!';
+                statusDiv.className = 'status-message status-success';
+                
+                // Update Faculty Dashboard (Mock Real-time update)
+                // In a real app, this would happen via WebSockets/Database polling
+                const count = document.getElementById('present-count');
+                let currentCount = parseInt(count.innerText);
+                count.innerText = currentCount + 1;
+
+                const list = document.getElementById('attendee-list');
+                const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                // Remove placeholder if it exists
+                if(list.children[0].innerText.includes('Waiting')) list.innerHTML = '';
+
+                const newItem = document.createElement('li');
+                newItem.style.cssText = "padding: 0.8rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; animation: fadeIn 0.5s;";
+                newItem.innerHTML = `
+                    <span style="font-weight:500;">Rahul Verma (104)</span>
+                    <span style="color: var(--success); font-size: 0.9rem;">${now}</span>
+                `;
+                list.prepend(newItem);
+
+            }, 1500);
+        }
+
+        // Add simple fadeIn animation
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+    </script>
 </body>
 </html>
